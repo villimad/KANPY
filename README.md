@@ -1,2 +1,0 @@
-# KANPY
-KAN network
