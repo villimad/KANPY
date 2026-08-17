@@ -13,16 +13,16 @@ class ForwardCalc:
     
     def calc_node(self, op_node):
         # Calculation node for node type
-        if type(op_node.type_of_op) == type(Sum()):
+        if isinstance(op_node.type_of_op, Sum):
             self.calc_plus(op_node)
 
-        if type(op_node.type_of_op) == type(Prod()):
+        if isinstance(op_node.type_of_op, Prod):
             self.calc_prod(op_node)
 
-        if type(op_node.type_of_op) == type(ActFunc()):
+        if isinstance(op_node.type_of_op, ActFunc):
             self.calc_act_func(op_node)
 
-        if type(op_node.type_of_op) == type(Spline()):
+        if isinstance(op_node.type_of_op, Spline):
             self.calc_spline(op_node) 
 
     def calc_plus(self, op_node):
@@ -66,7 +66,8 @@ class ForwardCalc:
     def solve_graph(self):
         # graph
         op_cont = self.op_graph.op_cont
-        for op in op_cont.op:
+        for key in op_cont.op.keys():
+            op = op_cont.op[key]
             if op in self.complited_op:
                 continue
             self.calc_node(op)
@@ -75,7 +76,6 @@ class ForwardCalc:
         self.solve_graph()
 
 if __name__ == "__main__":
-
     op_cont = OpCont()
     val_cont = ValueCont()
     net_scheme = NetScheme([2, 3, 1])
