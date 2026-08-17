@@ -3,7 +3,7 @@ class OpCont:
     # контейнер операций
     def __init__(self):
         self.op_id = []
-        self.op = []
+        self.op = dict() # {ido: op_node}
         self.future_ind = False # id занят future
     
     def _created_ido(self):
@@ -28,21 +28,28 @@ class OpCont:
         self.future_ind = False
         ido = self._created_ido()
         op = OpNode(ido, type_of_op, input_op_id,  last_op, in_values, out_value, psi_number)
-        self.op.append(op)
+        self.op.update({ido: op})
+        self.created_backward_chain(ido, input_op_id)
         return op
     
+    def created_backward_chain(self, ido, input_op_id):
+        if input_op_id[0] == -1:
+            return
+        for in_ido in input_op_id:
+            op = self.search_for_ido(in_ido)
+            op.backward_chain.add(ido)
+
     def search_for_psi_number(self, psi_number):
         # поиск конечных операций для узла psi_number
         op_psi_number = None
-        for op in self.op:
+        for key in self.op.keys():
+            op = self.op[key]
             if (op.last_op == True) and (op.psi_number[0] == psi_number[0]) and (op.psi_number[1] == psi_number[1]) and (op.psi_number[2] == psi_number[2]):
                 op_psi_number = op
         return op_psi_number
     
     def search_for_ido(self, ido):
-        for op in self.op:
-            if op.ido == ido:
-                return op
+        return self.op[ido]
 
 class Operation:
     type_operation_number = 0
@@ -90,6 +97,7 @@ class OpNode:
         self.out_value = out_value # переменная на выход
         self.psi_number = psi_number # index пси функции как в статье [номер суммы (уровень), индекс верхнего уровня (i_1), индекс текущего уровня (i_0)]
         # для сумм [номер суммы (уровень), индекс верхнего уровня (i_1)]
+        self.backward_chain = set() # ido операций которые примут в себя результат данной операции
         
     def info(self):
         print('self.psi_number = ', self.psi_number)

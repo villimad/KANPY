@@ -30,7 +30,6 @@ class OpGraph:
                 name = 'Input' + str(q)   
                 self.value_cont.created_value(-q, value=0, name=name, value_type=Input()) 
 
-
         for q_upper in line:
             for q_now in range(self.net_scheme.scheme[level_number]):
                 psi_number = [level_number, q_upper, q_now]
@@ -96,7 +95,7 @@ class OpGraph:
                     value_node = self.value_cont.created_value(future_ido_node, name='Sum node ' + str(q_now))
 
                 op_node = self.op_cont.created_op(type_of_op=Sum(), input_op_id=[op_prod_act_func.ido, op_prod_spline.ido], last_op=True, in_values=[op_prod_act_func.out_value, op_prod_spline.out_value], out_value=value_node, psi_number=psi_number)
-                    
+
     def main(self):
         self.created_graph()
 
@@ -116,7 +115,7 @@ class VisualOpGraph:
         for op in visual_op_arr:
             self.visualOpNode(op)
 
-        logs = open("D:/научная работа/СТАТЬИ В РАБОТЕ/СТАТЬЯ СЕТИ Колмогорова Арнольда/log.txt", "w+")
+        logs = open("./log.txt", "w+")
         logs.write(self.str_count)
         logs.close()
 
@@ -150,10 +149,10 @@ class VisualOpGraph:
 
         visual_op_arr_ido = []
 
-        for q in range(len(self.op_graph.op_cont.op)):
-            if not (self.op_graph.op_cont.op[q].ido in visual_op_arr_ido):
-                visual_op_arr_ido.append(self.op_graph.op_cont.op[q].ido)
-                self.visualOpNodeLine(data, self.op_graph.op_cont.op[q])
+        for key in self.op_graph.op_cont.op.keys():
+            if not (self.op_graph.op_cont.op[key].ido in visual_op_arr_ido):
+                visual_op_arr_ido.append(self.op_graph.op_cont.op[key].ido)
+                self.visualOpNodeLine(data, self.op_graph.op_cont.op[key])
 
         df = pd.DataFrame(data)
         df.to_csv('data.csv',  sep=';', index=False, header=False, mode='w+')
@@ -174,6 +173,16 @@ class VisualOpGraph:
         disp_str = disp_str + "; value = " + str(op_node.out_value.value)
 
         data[row_in_table][col_in_table] = disp_str
+
+    def visual_value_cont(self, name=''):
+        value_cont = self.op_graph.value_cont
+        data = []
+        for key in value_cont.values.keys():
+            value = value_cont.values[key]
+            new_data = [value.idv, value.value_type, value.name, value.value]
+            data.append(new_data)
+        df = pd.DataFrame(data)
+        df.to_csv('values' + name + '.csv',  sep=';', index=False, header=False, mode='w+')
 
 if __name__ == "__main__":
     op_cont = OpCont()
